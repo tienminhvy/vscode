@@ -13,7 +13,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Updated to version 22 to satisfy @electron/get and gulp-electron requirements
+          node-version: '22' 
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -23,11 +24,11 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential pkg-config libx11-dev libxkbfile-dev libsecret-1-dev dbus xvfb libgtk-3-0
+          # Added libkrb5-dev to fix the gssapi.h missing header error
+          sudo apt-get install -y build-essential pkg-config libx11-dev libxkbfile-dev libsecret-1-dev dbus xvfb libgtk-3-0 libkrb5-dev
           
       - name: Inject Open VSX Registry
         run: |
-          # Use jq to append the open-source extensions gallery endpoints into product.json
           jq '.extensionsGallery = {
             "serviceUrl": "https://open-vsx.org/vscode/gallery",
             "itemUrl": "https://open-vsx.org/vscode/item",
@@ -35,11 +36,11 @@ jobs:
             "extensionUrlTemplate": "https://open-vsx.org/vscode/gallery/{publisher}/{name}/latest"
           }' product.json > product.tmp.json
           
-          # Overwrite the original product.json with the updated one
           mv product.tmp.json product.json
 
       - name: Install Node Dependencies
-        run: npm ci
+        # Optional: Adding --foreground-scripts helps surface native compilation errors more clearly
+        run: npm ci --foreground-scripts
 
       - name: Build the Minified Binary
         run: npm run gulp -- vscode-linux-x64-min
