@@ -13,8 +13,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          # Updated to version 22 to satisfy @electron/get and gulp-electron requirements
-          node-version: '22' 
+          node-version-file: '.nvmrc'
 
       - name: Setup Python
         uses: actions/setup-python@v5
